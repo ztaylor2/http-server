@@ -14,6 +14,20 @@ def server():
     server.listen(1)
     conn, addr = server.accept()
 
+    message = ""
+
+    buffer_length = 8
+    message_complete = False
+    while not message_complete:
+        part = conn.recv(buffer_length)
+        message += part.decode('utf8')
+        if len(part) < buffer_length:
+            break
+
+    print(message)
+
+    conn.close()
+
 
 if __name__ == '__main__':
     try:
