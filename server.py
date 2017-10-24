@@ -25,6 +25,7 @@ def server():
             break
 
     print(message)
+    conn.sendall(message.encode('utf8'))
 
     conn.close()
 
