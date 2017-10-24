@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Creates a client to communicate with a server."""
+from __future__ import unicode_literals
 
 import sys
 import socket
