@@ -27,8 +27,9 @@ def client(message):
         elif message.endswith('|~|'):
             print(True)
             break
-    return message[:-3]
     client.close()
+    print(message[:-3])
+    return message[:-3]
 
 
 if __name__ == '__main__':
