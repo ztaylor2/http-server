@@ -1,19 +1,16 @@
-"""Creates a client to communicate with a server"""
+"""Creates a client to communicate with a server."""
 
 import sys
 import socket
 
 
 def client(message):
-    """Instantiates a client and routes the clients message to a server"""
-    # open socket connection to server
-    # send message var to server through socket
-    # accumulate any reply into a string
-    # once full reply is recieved close socket and return the mesasge
+    """Instantiate a client and routes the clients message to a server."""
     infos = socket.getaddrinfo('127.0.0.1', 5555)
     stream_info = [i for i in infos if i[1] == socket.SOCK_STREAM][0]
     client = socket.socket(*stream_info[:3])
     client.connect(stream_info[-1])
+    message += '|~|'
     client.sendall(message.encode('utf8'))
 
     message = ""
@@ -25,9 +22,12 @@ def client(message):
         message += part_recv_message.decode('utf8')
         if len(part_recv_message) < buffer_length:
             break
-    print(message)
+        elif message.endswith('|~|'):
+            print(True)
+            break
+    return message[:-3]
     client.close()
 
 
 if __name__ == '__main__':
-    client(sys.argv[1])
+    print(client(sys.argv[1]))
