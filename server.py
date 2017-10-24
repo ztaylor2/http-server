@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Create a server."""
 
 import sys

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Creates a client to communicate with a server."""
 
 import sys
