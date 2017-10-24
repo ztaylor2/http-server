@@ -6,17 +6,20 @@ import sys
 import socket
 import email.utils
 
+
 def response_ok():
-    """Function sends a 200 OK response message"""
-    message = b"HTTP/1.1 200 OK \r\n "
+    """Function sends a 200 OK response message."""
+    message = b"HTTP/1.1 200 OK\r\n"
     message += u'Date {}\r\n\r\n'.format(email.utils.formatdate(usegmt=True)).encode('utf8')
     return message
 
+
 def response_error():
-    """Function sends a 500 Internal Server Error response"""
-    message = b"HTTP/1.1 500 Internal Server Error \r\n "
+    """Function sends a 500 Internal Server Error response."""
+    message = b"HTTP/1.1 500 Internal Server Error\r\n"
     message += u'Date {}\r\n\r\n'.format(email.utils.formatdate(usegmt=True)).encode('utf8')
     return message
+
 
 def server():
     """Create a server that echos messages with client."""
@@ -43,8 +46,10 @@ def server():
                     print(True)
                     break
 
-            print(message[:-3])
-            conn.sendall(message.encode('utf8'))
+            sys.stdout.write(str(message[:-3]))
+            sys.stdout.flush()
+
+            conn.sendall(response_ok())
     except KeyboardInterrupt:
         print("\nGoodbye")
         conn.close()
