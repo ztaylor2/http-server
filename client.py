@@ -1,11 +1,11 @@
-"""."""
+"""Creates a client to communicate with a server"""
 
 import sys
 import socket
 
 
 def client(message):
-    """."""
+    """Instantiates a client and routes the clients message to a server"""
     # open socket connection to server
     # send message var to server through socket
     # accumulate any reply into a string
