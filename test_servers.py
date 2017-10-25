@@ -20,11 +20,11 @@ def test_response_ok_is_byte_string():
     """."""
     from server import response_ok
     output = response_ok()
-    # assert isinstance(output, str)
+    assert output
 
 
 def test_response_error_is_byte_string():
     """."""
     from server import response_error
     output = response_error()
-    # assert isinstance(output, str)
+    assert output
