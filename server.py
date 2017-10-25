@@ -27,7 +27,7 @@ def parse_request(req):
 
     first_line_req = req.split("<CRLF>")[0].split(" ")
     sec_line_req = req.split("<CRLF>")[1].split(" ")
-    
+
     if first_line_req[0] != "GET":
         raise ValueError("Invalid HTTP Method - GET method required")
 
