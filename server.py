@@ -15,12 +15,17 @@ def response_ok():
     return message
 
 
-def response_error():
+def response_error(error_code, reason_phrase):
     """Function sends a 500 Internal Server Error response."""
-    message = "HTTP/1.1 500 Internal Server Error\r\n"
+    message = "HTTP/1.1 {} \r\n".format(error_code)
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
+    message += '{}'.format(reason_phrase)
     return message
-
+"""
+HTTP/1.1 200 OK
+Content-Type: text/plain
+<CRLF>
+"""
 
 def parse_request(req):
     """recieves a request from the client and parses it"""
@@ -67,8 +72,13 @@ def server():
                 elif message.endswith('|~|'):
                     print(True)
                     break
-
-            sys.stdout.write(str(message[:-3]))
+            message = str(message[:-3])
+            try:
+                parse_request(message)
+                sys.stdout.write(response_ok())
+            except ValueError:
+                sys.stdout.write(response_error('404 Not Found', 'this is the reason statement'))
+            sys.stdout.write(message)
             sys.stdout.flush()
 
             conn.sendall(response_ok().encode('utf8'))
