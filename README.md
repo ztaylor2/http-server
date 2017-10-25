@@ -11,7 +11,8 @@ An http server built in python.
 
 ### How to format time in the server
 --------------------------------------
-```import email.utils
+```
+import email.utils
 
 var = 'Date {}'.format(email.utils.formatdate(usegmt=True)).encode('utf8')
 ```
