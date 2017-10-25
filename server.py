@@ -16,8 +16,8 @@ def response_ok():
 
 def response_error():
     """Function sends a 500 Internal Server Error response."""
-    message = "HTTP/1.1 500 Internal Server Error\r"
-    message += 'Date {}\r'.format(email.utils.formatdate(usegmt=True))
+    message = "HTTP/1.1 500 Internal Server Error\r\n"
+    message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
     return message
 
 

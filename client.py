@@ -29,7 +29,7 @@ def client(message):
             break
     client.close()
     print(message[:-3])
-    return message[:-3]
+    return message[:]
 
 
 if __name__ == '__main__':
