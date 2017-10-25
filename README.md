@@ -3,7 +3,9 @@ An http server built in python.
 
 ## HTTP Resources
 -------------------
-[Stack Overflow](https://stackoverflow.com/questions/1761051/difference-between-n-and-r)
+[Stack Overflow - Carriage](https://stackoverflow.com/questions/1761051/difference-between-n-and-r)
+
+[Stack Overflow - Flush](https://stackoverflow.com/questions/10019456/usage-of-sys-stdout-flush-method)
 
 [Code Fellows](https://codefellows.github.io/sea-python-401d7/lectures/http.html#wrap-up)
 
