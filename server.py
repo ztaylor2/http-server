@@ -6,6 +6,7 @@ import sys
 import socket
 import email.utils
 
+"""GET /path/to/index.html HTTP/1.1<CRLF>Host: www.mysite1.com:80<CRLF><CRLF>"""
 
 def response_ok():
     """Function sends a 200 OK response message."""
@@ -24,22 +25,24 @@ def response_error():
 def parse_request(req):
     """recieves a request from the client and parses it"""
 
-    sample_req = """GET /path/to/index.html HTTP/1.1<CRLF>Host: www.mysite1.com:80<CRLF><CRLF>"""
-
-    first_line_req = sample_req.split("<CRLF>")[0].split(" ")
-    sec_line_req = sample_req.split("<CRLF>")[1].split(" ")
-
+    first_line_req = req.split("<CRLF>")[0].split(" ")
+    sec_line_req = req.split("<CRLF>")[1].split(" ")
+    
     if first_line_req[0] != "GET":
         raise ValueError("Invalid HTTP Method - GET method required")
-    
+
     if first_line_req[2] != "HTTP/1.1":
         raise ValueError("Invalid HTTP Type - HTTP/1.1 is required")
-    
-    if sec_line_req[0] !=  "Host":
+
+    if sec_line_req[0] != "Host:":
         raise ValueError("Invalid Host")
 
-    if 
-    
+    if req[-12:] != "<CRLF><CRLF>":
+        raise ValueError("Response not properly closed - Requires two carriages at the end")
+
+    return first_line_req[1]
+
+
 def server():
     """Create a server that echos messages with client."""
     server = socket.socket(socket.AF_INET,
