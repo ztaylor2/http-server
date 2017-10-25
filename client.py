@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Creates a client to communicate with a server."""
+from __future__ import unicode_literals
 
 import sys
 import socket
@@ -26,8 +27,9 @@ def client(message):
         elif message.endswith('|~|'):
             print(True)
             break
-    return message[:-3]
     client.close()
+    print(message[:-3])
+    return message[:]
 
 
 if __name__ == '__main__':

@@ -1,8 +1,24 @@
 # -*- coding: utf-8 -*-
 """Create a server."""
+from __future__ import unicode_literals
 
 import sys
 import socket
+import email.utils
+
+
+def response_ok():
+    """Function sends a 200 OK response message."""
+    message = 'HTTP/1.1 200 OK\r\n'
+    message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
+    return message
+
+
+def response_error():
+    """Function sends a 500 Internal Server Error response."""
+    message = "HTTP/1.1 500 Internal Server Error\r\n"
+    message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
+    return message
 
 
 def server():
@@ -30,8 +46,10 @@ def server():
                     print(True)
                     break
 
-            print(message[:-3])
-            conn.sendall(message.encode('utf8'))
+            sys.stdout.write(str(message[:-3]))
+            sys.stdout.flush()
+
+            conn.sendall(response_ok().encode('utf8'))
     except KeyboardInterrupt:
         print("\nGoodbye")
         conn.close()
@@ -39,4 +57,6 @@ def server():
         sys.exit()
 
 if __name__ == '__main__':
+    print(response_ok())
+    print('Server Running')
     server()
