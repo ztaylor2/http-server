@@ -14,11 +14,31 @@ def response_ok():
     return message
 
 
-def response_error():
+def response_error(error_code, reason_phrase):
     """Function sends a 500 Internal Server Error response."""
-    message = "HTTP/1.1 500 Internal Server Error\r\n"
+    message = "HTTP/1.1 {} {}\r\n".format(error_code, reason_phrase)
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
     return message
+
+
+def parse_request(req):
+    """Recieve a request from the client and parses it."""
+    first_line_req = req.split("<CRLF>")[0].split(" ")
+    sec_line_req = req.split("<CRLF>")[1].split(" ")
+
+    if first_line_req[0] != "GET":
+        raise ValueError("Invalid HTTP Method - GET method required")
+
+    if first_line_req[2] != "HTTP/1.1":
+        raise ValueError("Invalid HTTP Type - HTTP/1.1 is required")
+
+    if sec_line_req[0] != "Host:":
+        raise ValueError("Invalid Host")
+
+    if req[-12:] != "<CRLF><CRLF>":
+        raise ValueError("Response not properly closed - Requires two carriages at the end")
+
+    return first_line_req[1]
 
 
 def server():
@@ -26,7 +46,7 @@ def server():
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 5555)
+    address = ('127.0.0.1', 8000)
     server.bind(address)
     try:
         while True:
@@ -45,11 +65,15 @@ def server():
                 elif message.endswith('|~|'):
                     print(True)
                     break
-
-            sys.stdout.write(str(message[:-3]))
+            message = str(message[:-3])
+            try:
+                sys.stdout.write(parse_request(message))
+                conn.sendall(response_ok().encode('utf8'))
+                # sys.stdout.write(response_ok())
+            except ValueError:
+                conn.sendall(response_error('400', 'Bad Request').encode('utf8'))
             sys.stdout.flush()
 
-            conn.sendall(response_ok().encode('utf8'))
     except KeyboardInterrupt:
         print("\nGoodbye")
         conn.close()
@@ -57,6 +81,5 @@ def server():
         sys.exit()
 
 if __name__ == '__main__':
-    print(response_ok())
-    print('Server Running')
+    print('Server Running\n')
     server()
