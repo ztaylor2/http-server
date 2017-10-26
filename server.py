@@ -6,7 +6,6 @@ import sys
 import socket
 import email.utils
 
-"""GET /path/to/index.html HTTP/1.1<CRLF>Host: www.mysite1.com:80<CRLF><CRLF>"""
 
 def response_ok():
     """Function sends a 200 OK response message."""
@@ -17,19 +16,13 @@ def response_ok():
 
 def response_error(error_code, reason_phrase):
     """Function sends a 500 Internal Server Error response."""
-    message = "HTTP/1.1 {} \r\n".format(error_code)
+    message = "HTTP/1.1 {} {}\r\n".format(error_code, reason_phrase)
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
-    message += '{}'.format(reason_phrase)
     return message
-"""
-HTTP/1.1 200 OK
-Content-Type: text/plain
-<CRLF>
-"""
+
 
 def parse_request(req):
-    """recieves a request from the client and parses it"""
-
+    """Recieve a request from the client and parses it."""
     first_line_req = req.split("<CRLF>")[0].split(" ")
     sec_line_req = req.split("<CRLF>")[1].split(" ")
 
@@ -53,7 +46,7 @@ def server():
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 5555)
+    address = ('127.0.0.1', 8000)
     server.bind(address)
     try:
         while True:
@@ -74,14 +67,13 @@ def server():
                     break
             message = str(message[:-3])
             try:
-                parse_request(message)
-                sys.stdout.write(response_ok())
+                sys.stdout.write(parse_request(message))
+                conn.sendall(response_ok().encode('utf8'))
+                # sys.stdout.write(response_ok())
             except ValueError:
-                sys.stdout.write(response_error('404 Not Found', 'this is the reason statement'))
-            sys.stdout.write(message)
+                conn.sendall(response_error('400', 'Bad Request').encode('utf8'))
             sys.stdout.flush()
 
-            conn.sendall(response_ok().encode('utf8'))
     except KeyboardInterrupt:
         print("\nGoodbye")
         conn.close()
@@ -89,6 +81,5 @@ def server():
         sys.exit()
 
 if __name__ == '__main__':
-    print(response_ok())
-    print('Server Running')
+    print('Server Running\n')
     server()
