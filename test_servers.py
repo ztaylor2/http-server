@@ -72,4 +72,4 @@ def test_resolve_uri_directory_condition(n, result):
 def test_returns_file_body_if_request_existing_file():
     from server import resolve_uri
     n = 'test.txt'
-    assert resolve_uri(n) == "HTTP/1.1 200 OK\nContent-Type: ini\n<CRLF>\ntest"
+    assert resolve_uri(n) == "HTTP/1.1 200 OK\nContent-Type: txt\n<CRLF>\ncontent of test file"
