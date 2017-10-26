@@ -23,8 +23,11 @@ def response_error(error_code, reason_phrase):
 
 def parse_request(req):
     """Recieve a request from the client and parses it."""
-    first_line_req = req.split("<CRLF>")[0].split(" ")
-    sec_line_req = req.split("<CRLF>")[1].split(" ")
+    try:
+        first_line_req = req.split("<CRLF>")[0].split(" ")
+        sec_line_req = req.split("<CRLF>")[1].split(" ")
+    except IndexError:
+        raise ValueError("Invalid request")
 
     if first_line_req[0] != "GET":
         raise ValueError("Invalid HTTP Method - GET method required")
@@ -41,12 +44,31 @@ def parse_request(req):
     return first_line_req[1]
 
 
+def resolve_uri(uri):
+    """Resolve the URI from http request."""
+    try:
+        if '.' not in uri:     # uri is a directory
+            # return simple html listing of dir as body of response
+            file_type = "Directory"
+            body = uri
+        else:     # uri is a file, return contents of file as body
+            file_type = uri.split('.')[1]
+            raw_file = open(uri)
+            body = raw_file.read()
+            print('\ntrue\n')
+            print(body)         # get contents of file
+            raw_file.close()
+        http_response = "HTTP/1.1 200 OK\nContent-Type: {}\n<CRLF>\n{}".format(file_type, body)
+        return http_response
+    except IOError:
+        return response_error('404', 'Not Found')
+
 def server():
     """Create a server that echos messages with client."""
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 8000)
+    address = ('127.0.0.1', 9000)
     server.bind(address)
     try:
         while True:
