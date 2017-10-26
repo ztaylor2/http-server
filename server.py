@@ -23,8 +23,11 @@ def response_error(error_code, reason_phrase):
 
 def parse_request(req):
     """Recieve a request from the client and parses it."""
-    first_line_req = req.split("<CRLF>")[0].split(" ")
-    sec_line_req = req.split("<CRLF>")[1].split(" ")
+    try:
+        first_line_req = req.split("<CRLF>")[0].split(" ")
+        sec_line_req = req.split("<CRLF>")[1].split(" ")
+    except IndexError:
+        raise ValueError("Invalid request")
 
     if first_line_req[0] != "GET":
         raise ValueError("Invalid HTTP Method - GET method required")
@@ -46,7 +49,7 @@ def server():
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 8000)
+    address = ('127.0.0.1', 9000)
     server.bind(address)
     try:
         while True:

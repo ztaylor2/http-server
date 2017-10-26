@@ -8,7 +8,7 @@ import socket
 
 def client(message):
     """Instantiate a client and routes the clients message to a server."""
-    infos = socket.getaddrinfo('127.0.0.1', 8000)
+    infos = socket.getaddrinfo('127.0.0.1', 9000)
     stream_info = [i for i in infos if i[1] == socket.SOCK_STREAM][0]
     client = socket.socket(*stream_info[:3])
     client.connect(stream_info[-1])
