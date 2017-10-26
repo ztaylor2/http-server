@@ -7,7 +7,7 @@ import socket
 import email.utils
 
 
-def response_ok():
+def response_ok(file_type, body):
     """Function sends a 200 OK response message."""
     message = 'HTTP/1.1 200 OK\r\n'
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
@@ -52,14 +52,11 @@ def resolve_uri(uri):
             file_type = "Directory"
             body = uri
         else:     # uri is a file, return contents of file as body
-            file_type = uri.split('.')[1]
+            file_type = uri.split('.')[-1]
             raw_file = open(uri)
-            body = raw_file.read()
-            print('\ntrue\n')
-            print(body)         # get contents of file
+            body = raw_file.read()         # get contents of file
             raw_file.close()
-        http_response = "HTTP/1.1 200 OK\nContent-Type: {}\n<CRLF>\n{}".format(file_type, body)
-        return http_response
+        return (file_type, body)
     except IOError:
         return response_error('404', 'Not Found')
 
