@@ -12,7 +12,8 @@ def response_ok(file_type, body, len):
     message = 'HTTP/1.1 200 OK\r\n'
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
     message += 'Content-Length: {}\r\n'.format(len)
-    message += 'Content-Type: {}\r\n'.format(file_type)
+    message += 'Content-Type: {}\r\n\r\n'.format(file_type)
+    message += '{}'.format(body)
     return message
 
 
@@ -68,7 +69,7 @@ def server():
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 9000)
+    address = ('127.0.0.1', 9001)
     server.bind(address)
     try:
         while True:
