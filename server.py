@@ -7,10 +7,12 @@ import socket
 import email.utils
 
 
-def response_ok(file_type, body):
+def response_ok(file_type, body, len):
     """Function sends a 200 OK response message."""
     message = 'HTTP/1.1 200 OK\r\n'
     message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
+    message += 'Content-Length: {}\r\n'.format(len)
+    message += 'Content-Type: {}\r\n'.format(file_type)
     return message
 
 
@@ -56,7 +58,8 @@ def resolve_uri(uri):
             raw_file = open(uri)
             body = raw_file.read()         # get contents of file
             raw_file.close()
-        return (file_type, body)
+        return (file_type, body, len(body))
+
     except IOError:
         return response_error('404', 'Not Found')
 
@@ -87,8 +90,7 @@ def server():
             message = str(message[:-3])
             try:
                 sys.stdout.write(parse_request(message))
-                conn.sendall(response_ok().encode('utf8'))
-                # sys.stdout.write(response_ok())
+                conn.sendall(response_ok(*resolve_uri(parse_request(message))).encode('utf8'))
             except ValueError:
                 conn.sendall(response_error('400', 'Bad Request').encode('utf8'))
             sys.stdout.flush()
