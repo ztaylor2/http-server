@@ -9,18 +9,18 @@ import email.utils
 
 def response_ok(file_type, body, len):
     """Function sends a 200 OK response message."""
-    message = 'HTTP/1.1 200 OK\r\n'
-    message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
-    message += 'Content-Length: {}\r\n'.format(len)
-    message += 'Content-Type: {}\r\n\r\n'.format(file_type)
-    message += '{}'.format(body)
+    message = b"HTTP/1.1 200 OK\r\n"
+    message += "Date {}\r\n".format(email.utils.formatdate(usegmt=True)).encode("utf8")
+    message += "Content-Length: {}\r\n".format(len).encode("utf8")
+    message += "Content-Type: {}\r\n\r\n".format(file_type).encode("utf8")
+    message += "{}".format(body).encode("utf8")
     return message
 
 
 def response_error(error_code, reason_phrase):
     """Function sends a 500 Internal Server Error response."""
     message = "HTTP/1.1 {} {}\r\n".format(error_code, reason_phrase)
-    message += 'Date {}\r\n'.format(email.utils.formatdate(usegmt=True))
+    message += "Date {}\r\n".format(email.utils.formatdate(usegmt=True))
     return message
 
 
@@ -49,16 +49,16 @@ def parse_request(req):
 
 def resolve_uri(uri):
     """Resolve the URI from http request."""
-    if '.' not in uri:     # uri is a directory
+    if "." not in uri:     # uri is a directory
         # return simple html listing of dir as body of response
-        file_type = "Directory"
+        file_type = b"Directory"
         body = uri
     else:     # uri is a file, return contents of file as body
-        file_type = uri.split('.')[-1]
-        raw_file = open(uri)
-        body = raw_file.read()         # get contents of file
-        raw_file.close()
-    return (file_type, body, len(body))
+        file_type = "".format(uri.split(".")[-1]).encode("utf8")
+        with open(uri, "rb") as raw_file:
+            body = raw_file.read()
+    length = "{}".format(len(body)).encode("utf8")
+    return (file_type, body, length)
 
 
 def server():
@@ -66,7 +66,7 @@ def server():
     server = socket.socket(socket.AF_INET,
                            socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
-    address = ('127.0.0.1', 9001)
+    address = ("127.0.0.1", 9005)
     server.bind(address)
     try:
         while True:
@@ -79,21 +79,23 @@ def server():
             message_complete = False
             while not message_complete:
                 part = conn.recv(buffer_length)
-                message += part.decode('utf8')
+                message += part.decode("utf8")
                 if len(part) < buffer_length:
                     break
-                elif message.endswith('|~|'):
-                    print(True)
+                elif message.endswith("|~|"):
                     break
             message = str(message[:-3])
+
             try:
-                sys.stdout.write(parse_request(message))
-                try:
-                    conn.sendall(response_ok(*resolve_uri(parse_request(message))).encode('utf8'))
-                except IOError:
-                    return response_error('404', 'Not Found')
+                uri = parse_request(message)
             except ValueError:
-                conn.sendall(response_error('400', 'Bad Request').encode('utf8'))
+                conn.sendall(response_error("400", "Bad Request").encode("utf8"))
+
+            try:
+                response_ok_http_response = response_ok(*resolve_uri(uri))
+                conn.sendall(response_ok_http_response)
+            except OSError:
+                conn.sendall(response_error("404", "Not Found").encode("utf8"))
             sys.stdout.flush()
 
     except KeyboardInterrupt:
@@ -102,6 +104,6 @@ def server():
         server.close()
         sys.exit()
 
-if __name__ == '__main__':
-    print('Server Running\n')
+if __name__ == "__main__":
+    print("Server Running\n")
     server()
