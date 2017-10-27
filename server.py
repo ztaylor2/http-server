@@ -49,20 +49,17 @@ def parse_request(req):
 
 def resolve_uri(uri):
     """Resolve the URI from http request."""
-    try:
-        if '.' not in uri:     # uri is a directory
-            # return simple html listing of dir as body of response
-            file_type = "Directory"
-            body = uri
-        else:     # uri is a file, return contents of file as body
-            file_type = uri.split('.')[-1]
-            raw_file = open(uri)
-            body = raw_file.read()         # get contents of file
-            raw_file.close()
-        return (file_type, body, len(body))
+    if '.' not in uri:     # uri is a directory
+        # return simple html listing of dir as body of response
+        file_type = "Directory"
+        body = uri
+    else:     # uri is a file, return contents of file as body
+        file_type = uri.split('.')[-1]
+        raw_file = open(uri)
+        body = raw_file.read()         # get contents of file
+        raw_file.close()
+    return (file_type, body, len(body))
 
-    except IOError:
-        return response_error('404', 'Not Found')
 
 def server():
     """Create a server that echos messages with client."""
@@ -91,7 +88,10 @@ def server():
             message = str(message[:-3])
             try:
                 sys.stdout.write(parse_request(message))
-                conn.sendall(response_ok(*resolve_uri(parse_request(message))).encode('utf8'))
+                try:
+                    conn.sendall(response_ok(*resolve_uri(parse_request(message))).encode('utf8'))
+                except IOError:
+                    return response_error('404', 'Not Found')
             except ValueError:
                 conn.sendall(response_error('400', 'Bad Request').encode('utf8'))
             sys.stdout.flush()
