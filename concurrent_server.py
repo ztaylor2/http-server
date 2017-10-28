@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 import sys
-import socket
+# import socket
 import email.utils
 
 
@@ -51,34 +51,34 @@ def resolve_uri(uri):
     """Resolve the URI from http request."""
     if "." not in uri:     # uri is a directory
         # return simple html listing of dir as body of response
-        file_type = b"Directory"
+        file_type = "Directory"
         body = uri
     else:     # uri is a file, return contents of file as body
-        file_type = "{}".format(uri.split(".")[-1]).encode("utf8")
+        file_type = "{}".format(uri.split(".")[-1])
         with open(uri, "rb") as raw_file:
             body = raw_file.read()
-    length = "{}".format(len(body)).encode("utf8")
+    length = "{}".format(len(body))
     return (file_type, body, length)
 
 
-def server():
+def echo(socket, address):
     """Create a server that echos messages with client."""
-    server = socket.socket(socket.AF_INET,
-                           socket.SOCK_STREAM,
-                           socket.IPPROTO_TCP)
-    address = ("127.0.0.1", 9005)
-    server.bind(address)
+    # server = socket.socket(socket.AF_INET,
+    #                        socket.SOCK_STREAM,
+    #                        socket.IPPROTO_TCP)
+    # address = ("127.0.0.1", 9005)
+    # server.bind(address)
     try:
         while True:
-            server.listen(1)
-            conn, addr = server.accept()
+            # server.listen(1)
+            # socket, addr = server.accept()
 
             message = ""
 
             buffer_length = 8
             message_complete = False
             while not message_complete:
-                part = conn.recv(buffer_length)
+                part = socket.recv(buffer_length)
                 message += part.decode("utf8")
                 if len(part) < buffer_length:
                     break
@@ -89,21 +89,29 @@ def server():
             try:
                 uri = parse_request(message)
             except ValueError:
-                conn.sendall(response_error("400", "Bad Request").encode("utf8"))
+                socket.sendall(response_error("400", "Bad Request").encode("utf8"))
 
             try:
+                uri = parse_request(message)
                 response_ok_http_response = response_ok(*resolve_uri(uri))
-                conn.sendall(response_ok_http_response)
+                socket.sendall(response_ok_http_response)
+                # socket.sendall(b"hi")
+                # socket.flush()
             except OSError:
-                conn.sendall(response_error("404", "Not Found").encode("utf8"))
+                socket.sendall(response_error("404", "Not Found").encode("utf8"))
             sys.stdout.flush()
 
     except KeyboardInterrupt:
         print("\nGoodbye")
-        conn.close()
+        socket.close()
         server.close()
         sys.exit()
 
-if __name__ == "__main__":
-    print("Server Running\n")
-    server()
+
+if __name__ == '__main__':
+    from gevent.server import StreamServer
+    from gevent.monkey import patch_all
+    patch_all()
+    server = StreamServer(('127.0.0.1', 10000), echo)
+    print('Starting echo server on port 10000')
+    server.serve_forever()

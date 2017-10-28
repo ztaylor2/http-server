@@ -8,13 +8,12 @@ import socket
 
 def client(message):
     """Instantiate a client and routes the clients message to a server."""
-    infos = socket.getaddrinfo("127.0.0.1", 9005)
+    infos = socket.getaddrinfo("127.0.0.1", 10000)
     stream_info = [i for i in infos if i[1] == socket.SOCK_STREAM][0]
     client = socket.socket(*stream_info[:3])
     client.connect(stream_info[-1])
     message += "|~|"
     client.sendall(message.encode("utf8"))
-
     message = b""
     buffer_length = 8
     reply_complete = False
@@ -24,7 +23,6 @@ def client(message):
         if len(part_recv_message) < buffer_length:
             break
         elif message.endswith(b"|~|"):
-            print(True)
             break
     client.close()
     try:
