@@ -63,16 +63,8 @@ def resolve_uri(uri):
 
 def echo(socket, address):
     """Create a server that echos messages with client."""
-    # server = socket.socket(socket.AF_INET,
-    #                        socket.SOCK_STREAM,
-    #                        socket.IPPROTO_TCP)
-    # address = ("127.0.0.1", 9005)
-    # server.bind(address)
     try:
         while True:
-            # server.listen(1)
-            # socket, addr = server.accept()
-
             message = ""
 
             buffer_length = 8
@@ -92,11 +84,8 @@ def echo(socket, address):
                 socket.sendall(response_error("400", "Bad Request").encode("utf8"))
 
             try:
-                uri = parse_request(message)
                 response_ok_http_response = response_ok(*resolve_uri(uri))
                 socket.sendall(response_ok_http_response)
-                # socket.sendall(b"hi")
-                # socket.flush()
             except OSError:
                 socket.sendall(response_error("404", "Not Found").encode("utf8"))
             sys.stdout.flush()
@@ -112,6 +101,6 @@ if __name__ == '__main__':
     from gevent.server import StreamServer
     from gevent.monkey import patch_all
     patch_all()
-    server = StreamServer(('127.0.0.1', 10000), echo)
+    server = StreamServer(('127.0.0.1', 10001), echo)
     print('Starting echo server on port 10000')
     server.serve_forever()

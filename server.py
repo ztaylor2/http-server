@@ -92,6 +92,7 @@ def server():
                 conn.sendall(response_error("400", "Bad Request").encode("utf8"))
 
             try:
+                uri = parse_request(message)
                 response_ok_http_response = response_ok(*resolve_uri(uri))
                 conn.sendall(response_ok_http_response)
             except OSError:
